@@ -1,68 +1,79 @@
 //create word bank
-var wordBank= ["dunkaroos", "lunchables", "surge", "mortal kombat","nintendo","clueless","furby","spice girls","home alone"];
-//choose random word from bank
-var word= wordBank[Math.floor(Math.random() * wordBank.length)];
-console.log(word);
-//show progress
-var dashes = [];
+var wordBank= ["dunkaroos", "lunchables", "surge","nintendo","clueless","furby","spice girls","home alone"];
+var word = "";
+var lettersInWord = [];
+var blanksAndSuccess=[];
+var wrongLetters= [];
+var amtBlanks= 0;
+
 var wins = 0;
 var losses= 0;
-var wrongLetters= [];
 var guessesLeft = 6;
-var amtBlanks= word.length;
-var rightGuesses= 0;
-var docWins= document.getElementById('Wins')
-var docLosses= document.getElementById('Losses')
-var docWrongLetters = document.getElementById("Wrong Guesses")
-var docWord= document.getElementById('hidden word')
 
+function game() {
+    guessesLeft = 6;
+    //choose random word from bank
+    word = wordBank[Math.floor(Math.random() * wordBank.length)];
+    console.log(word);
+    lettersInWord = word.split("");
+    amtBlanks = lettersInWord.length;
+    blanksAndSuccess=[];
+    wrongLetters=[]; 
 
-function makeBlank(){
-    for( var i=0; i < word.length; i++){
-        dashes.push("_");
+    for (var i= 0; i < amtBlanks; i++) {
+        blanksAndSuccess.push("_");
     }
-    return dashes;
-   
+console.log(blanksAndSuccess);
 }
-makeBlank();
-
-//take players guess
-document.onkeyup = function(event){
-    var userGuess= event.key;
-    console.log(userGuess);
+    
 //check if guess appears in random word
-    if(word.indexOf(userGuess) != -1){
-        for(var i= 0; i < word.length; i++)
-        if(word[i] == userGuess)
-        dashes[i] = word[i];
-        rightGuesses++;
-        console.log(dashes);
-        docWord.append(dashes);
-
-        if (rightGuesses == amtBlanks) { //change this at some point so user cant guess same letter and still win//
-            alert ("You win!");
-            wins++;
-            console.log(wins);
-            docWins.append(wins);
+function checkLetter(letter) {
+    var validGuess= false;
+    for (var i= 0; i < amtBlanks; i++)
+        if(word[i] === letter) {
+        validGuess = true;
+        }
+        
+    if(validGuess){
+        for (var j = 0; j < amtBlanks; j++){
+            if (word[j] === letter) {
+                blanksAndSuccess[j] = letter;
+            }    
         }
     }
 //track guessed letters
     else{
-        wrongLetters.push(userGuess);
+        wrongLetters.push(letter);
         console.log(wrongLetters);
-        docWrongLetters= wrongLetters;
         guessesLeft --;
-        if(guessesLeft=== 0){
-            alert("You Lose!");
-            losses ++;
-            console.log(losses);
-            docLosses.append(losses);
-        }
     }
+}    
+function completeRound(){
+    console.log("Wins: " + wins + " | Losses: " + losses + " | GuessesLeft: " + guessesLeft);
     
+    document.getElementById("Guesses Left").innerHTML = guessesLeft;
+    
+    document.getElementById("hidden word").innerHTML = blanksAndSuccess.join(" ");
+   
+    document.getElementById("Wrong Guesses").innerHTML = wrongLetters.join(" ");
+
+    if (blanksAndSuccess.toString() === lettersInWord.toString()) {  
+        alert ("You win!");
+        wins++;
+        document.getElementById("Wins").innerHTML = wins;
+        game();
+    }
+    else if (guessesLeft=== 0){
+        alert("You Lose!");
+        losses ++;
+        document.getElementById('Losses').innerHTML = losses;
+        game();
+    }
 }
-
-
-
-//track wins and losses
+game();
+document.onkeyup = function(event){
+    var userGuess = String.fromCharCode(event.which).toLowerCase();
+    checkLetter(userGuess);
+    completeRound();
+}
 
